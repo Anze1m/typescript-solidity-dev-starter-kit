@@ -1,53 +1,51 @@
-import { ethers } from "@nomiclabs/buidler";
-import { Wallet } from "ethers";
-import chai from "chai";
-import { deployContract, solidity } from "ethereum-waffle";
-import CounterArtifact from "../artifacts/Counter.json";
-import { Counter } from "../typechain/Counter";
+import { ethers } from "@nomiclabs/buidler"
+import chai, { expect } from "chai"
+import { solidity } from "ethereum-waffle"
 
-chai.use(solidity);
-const { expect } = chai;
+import { Counter } from "../typechain/Counter"
+import { CounterFactory } from "../typechain/CounterFactory"
+import { BigNumber } from "ethers/utils"
+
+chai.use(solidity)
 
 describe("Counter", () => {
-  let counter: Counter;
+  let counter: Counter
+  let count: BigNumber
 
   beforeEach(async () => {
-    // 1
-    const signers = await ethers.signers();
+    const [deployer] = await ethers.signers()
+    counter = await new CounterFactory(deployer).deploy()
+  })
 
-    // 2
-    counter = (await deployContract(
-      <Wallet>signers[0],
-      CounterArtifact
-    )) as Counter;
-    const initialCount = await counter.getCount();
+  describe("constructor", async () => {
+    it("should be properly deployed", async () => {
+      expect(counter.address).to.be.properAddress
+    })
 
-    // 3
-    expect(initialCount).to.eq(0);
-    expect(counter.address).to.properAddress;
-  });
+    it("initially should count 0", async () => {
+      const initialCount = await counter.getCount()
+      expect(initialCount).to.equal(0)
+    })
+  })
 
-  // 4
-  describe("count up", async () => {
-    it("should count up", async () => {
-      await counter.countUp();
-      let count = await counter.getCount();
-      expect(count).to.eq(1);
-    });
-  });
+  describe("countUp", async () => {
+    it("should count up properly", async () => {
+      await counter.countUp()
+      count = await counter.getCount()
+      expect(count).to.equal(1)
+    })
+  })
 
-  describe("count down", async () => {
-    // 5
-    it("should fail", async () => {
-      await counter.countDown();
-    });
+  describe("countDown", async () => {
+    it("should fail on underflow", async () => {
+      await expect(counter.countDown()).to.be.reverted
+    })
 
-    it("should count down", async () => {
-      await counter.countUp();
-
-      await counter.countDown();
-      const count = await counter.getCount();
-      expect(count).to.eq(0);
-    });
-  });
-});
+    it("should count down properly", async () => {
+      await counter.countUp()
+      await counter.countDown()
+      count = await counter.getCount()
+      expect(count).to.equal(0)
+    })
+  })
+})
