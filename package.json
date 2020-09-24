@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run compile && npx buidler typechain",
-    "compile": "npx buidler compile",
-    "test": "npx buidler test",
-    "coverage": "npm run build && npx buidler coverage --temp artifacts --network coverage"
+    "build": "yarn compile && buidler typechain",
+    "compile": "buidler compile",
+    "test": "buidler test",
+    "coverage": "yarn build && buidler coverage --temp artifacts --network coverage"
   },
   "repository": {
     "type": "git",
