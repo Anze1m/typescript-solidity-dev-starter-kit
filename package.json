@@ -6,7 +6,7 @@
   "scripts": {
     "build": "yarn compile && buidler typechain",
     "compile": "buidler compile",
-    "test": "buidler test",
+    "test": "buidler typechain && buidler test",
     "coverage": "yarn build && buidler coverage --temp artifacts --network coverage"
   },
   "repository": {
