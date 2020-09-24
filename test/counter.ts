@@ -1,10 +1,10 @@
 import { ethers } from "@nomiclabs/buidler"
 import chai, { expect } from "chai"
 import { solidity } from "ethereum-waffle"
+import { BigNumber } from "ethers/utils"
 
 import { Counter } from "../typechain/Counter"
 import { CounterFactory } from "../typechain/CounterFactory"
-import { BigNumber } from "ethers/utils"
 
 chai.use(solidity)
 
