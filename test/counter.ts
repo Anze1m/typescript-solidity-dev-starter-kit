@@ -1,12 +1,10 @@
 import { ethers } from "@nomiclabs/buidler"
-import chai, { expect } from "chai"
-import { solidity } from "ethereum-waffle"
+import { expect } from "chai"
 import { BigNumber } from "ethers/utils"
 
 import { Counter } from "../typechain/Counter"
 import { CounterFactory } from "../typechain/CounterFactory"
 
-chai.use(solidity)
 
 describe("Counter", () => {
   let counter: Counter
