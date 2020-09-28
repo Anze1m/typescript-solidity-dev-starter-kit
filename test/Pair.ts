@@ -10,7 +10,7 @@ import { TokenFactory } from '../typechain/TokenFactory'
 
 describe('Pair', () => {
     let pair: Pair
-    let apeAsset: Token    
+    let antAsset: Token    
     let catCoin: Token
 
     let deployer: Signer
@@ -20,34 +20,34 @@ describe('Pair', () => {
         const pairFactory = new PairFactory(deployer)
         const tokenFactory = new TokenFactory(deployer)
 
-        apeAsset = await tokenFactory.deploy()        
+        antAsset = await tokenFactory.deploy()        
         catCoin = await tokenFactory.deploy()    
-        pair = await pairFactory.deploy(apeAsset.address, catCoin.address)
+        pair = await pairFactory.deploy(antAsset.address, catCoin.address)
     })
 
     describe('constructor', () => {
         it('sets asset pointers properly', async () => {
-            expect(await pair.xToken()).to.equal(apeAsset.address)
+            expect(await pair.xToken()).to.equal(antAsset.address)
             expect(await pair.yToken()).to.equal(catCoin.address)
         })
     })      
 
     describe('fuel', () => {
         beforeEach(async () => {
-            await apeAsset.approve(pair.address, 1000)
+            await antAsset.approve(pair.address, 1000)
             await catCoin.approve(pair.address, 1000)
         })
 
         it('should fuel contract with tokens', async () => {
             await pair.fuel(500, 500)
-            expect(await apeAsset.balanceOf(pair.address)).to.equal(500)
+            expect(await antAsset.balanceOf(pair.address)).to.equal(500)
             expect(await catCoin.balanceOf(pair.address)).to.equal(500)
         })
 
         it('should fuel contract with tokens when called multiple times', async () => {
             await pair.fuel(200, 100)
             await pair.fuel(400, 200)
-            expect(await apeAsset.balanceOf(pair.address)).to.equal(600)
+            expect(await antAsset.balanceOf(pair.address)).to.equal(600)
             expect(await catCoin.balanceOf(pair.address)).to.equal(300)
         })
         
@@ -72,18 +72,18 @@ describe('Pair', () => {
             [, trader] = await ethers.getSigners()
             traderAddress = await trader.getAddress()
 
-            apeAsset.transfer(traderAddress, 100)
-            await apeAsset.connect(trader).approve(pair.address, 100)
+            antAsset.transfer(traderAddress, 100)
+            await antAsset.connect(trader).approve(pair.address, 100)
 
-            await apeAsset.approve(pair.address, 1000)
+            await antAsset.approve(pair.address, 1000)
             await catCoin.approve(pair.address, 1000)
             await pair.fuel(500, 500)
         })
         
         it('properly moves sold asset', async () => {
             await pair.connect(trader).swap(50)
-            expect(await apeAsset.balanceOf(traderAddress)).to.equal(50)
-            expect(await apeAsset.balanceOf(pair.address)).to.equal(550)
+            expect(await antAsset.balanceOf(traderAddress)).to.equal(50)
+            expect(await antAsset.balanceOf(pair.address)).to.equal(550)
         })
         
         it('properly moves bought asset', async () => {
