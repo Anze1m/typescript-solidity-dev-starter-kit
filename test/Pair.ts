@@ -10,8 +10,8 @@ import { TokenFactory } from '../typechain/TokenFactory'
 
 describe('Pair', () => {
     let pair: Pair
-    let antAsset: Token    
-    let catCoin: Token
+    let kiwis: Token    
+    let plums: Token
 
     let deployer: Signer
 
@@ -20,33 +20,33 @@ describe('Pair', () => {
         const pairFactory = new PairFactory(deployer)
         const tokenFactory = new TokenFactory(deployer)
 
-        antAsset = await tokenFactory.deploy()        
-        catCoin = await tokenFactory.deploy()    
-        pair = await pairFactory.deploy(antAsset.address, catCoin.address)
+        kiwis = await tokenFactory.deploy()        
+        plums = await tokenFactory.deploy()    
+        pair = await pairFactory.deploy(kiwis.address, plums.address)
     })
 
     it('constructor sets token pointers properly', async () => {
-        expect(await pair.xToken()).to.equal(antAsset.address)
-        expect(await pair.yToken()).to.equal(catCoin.address)
+        expect(await pair.xToken()).to.equal(kiwis.address)
+        expect(await pair.yToken()).to.equal(plums.address)
     })
 
     describe('fuel', () => {
         beforeEach(async () => {
-            await antAsset.approve(pair.address, 1000)
-            await catCoin.approve(pair.address, 1000)
+            await kiwis.approve(pair.address, 1000)
+            await plums.approve(pair.address, 1000)
         })
-        
+
         it('passes once', async () => {
             await pair.fuel(500, 500)
-            expect(await antAsset.balanceOf(pair.address)).to.equal(500)
-            expect(await catCoin.balanceOf(pair.address)).to.equal(500)
+            expect(await kiwis.balanceOf(pair.address)).to.equal(500)
+            expect(await plums.balanceOf(pair.address)).to.equal(500)
         })
 
         it('passes twice', async () => {
             await pair.fuel(200, 100)
             await pair.fuel(400, 200)
-            expect(await antAsset.balanceOf(pair.address)).to.equal(600)
-            expect(await catCoin.balanceOf(pair.address)).to.equal(300)
+            expect(await kiwis.balanceOf(pair.address)).to.equal(600)
+            expect(await plums.balanceOf(pair.address)).to.equal(300)
         })
 
         it('transfers funds from donor')
@@ -78,24 +78,24 @@ describe('Pair', () => {
             [, trader] = await ethers.getSigners()
             traderAddress = await trader.getAddress()
 
-            antAsset.transfer(traderAddress, 100)
-            await antAsset.connect(trader).approve(pair.address, 100)
+            kiwis.transfer(traderAddress, 100)
+            await kiwis.connect(trader).approve(pair.address, 100)
 
-            await antAsset.approve(pair.address, 1000)
-            await catCoin.approve(pair.address, 1000)
+            await kiwis.approve(pair.address, 1000)
+            await plums.approve(pair.address, 1000)
             await pair.fuel(500, 500)
         })
         
         it('transfers sold asset', async () => {
             await pair.connect(trader).swap(50)
-            expect(await antAsset.balanceOf(traderAddress)).to.equal(50)
-            expect(await antAsset.balanceOf(pair.address)).to.equal(550)
+            expect(await kiwis.balanceOf(traderAddress)).to.equal(50)
+            expect(await kiwis.balanceOf(pair.address)).to.equal(550)
         })
         
         it('transfers bought asset', async () => {
             await pair.connect(trader).swap(50)
-            expect(await catCoin.balanceOf(traderAddress)).to.be.above(0)
-            expect(await catCoin.balanceOf(pair.address)).to.be.below(500)
+            expect(await plums.balanceOf(traderAddress)).to.be.above(0)
+            expect(await plums.balanceOf(pair.address)).to.be.below(500)
         })
 
         it('reverts on 0', async () => {
