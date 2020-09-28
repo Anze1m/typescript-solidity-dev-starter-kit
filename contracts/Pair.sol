@@ -18,7 +18,19 @@ contract Pair {
         yToken = _yToken;
     }
 
+    // X / Y = P
+    // (X + Δx) / (Y + Δy) = P
+    // X / Y = (X + Δx) / (Y + Δy)
+    // X * (Y + Δy) = (X + Δx) * Y
     function fuel(uint256 xInput, uint256 yInput) public {
+        uint256 xReserve = xToken.balanceOf(address(this));
+        uint256 yReserve = yToken.balanceOf(address(this));
+        require(
+            xReserve.mul(yReserve.add(yInput)) ==
+                yReserve.mul(xReserve.add(xInput)),
+            "fueling should not change price"
+        );
+
         xToken.transferFrom(msg.sender, address(this), xInput);
         yToken.transferFrom(msg.sender, address(this), yInput);
         emit Fuel(xInput, yInput);
@@ -34,6 +46,7 @@ contract Pair {
         uint256 yOutput = yReserve.sub(
             xReserve.mul(yReserve).div(xReserve.add(xInput))
         );
+
         xToken.transferFrom(msg.sender, address(this), xInput);
         yToken.transfer(msg.sender, yOutput);
         emit Swap(msg.sender, xInput, yOutput);

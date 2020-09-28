@@ -46,12 +46,17 @@ describe('Pair', () => {
 
         it('should fuel contract with tokens when called multiple times', async () => {
             await pair.fuel(200, 100)
-            await pair.fuel(300, 700)
-            expect(await apeAsset.balanceOf(pair.address)).to.equal(500)
-            expect(await catCoin.balanceOf(pair.address)).to.equal(800)
+            await pair.fuel(400, 200)
+            expect(await apeAsset.balanceOf(pair.address)).to.equal(600)
+            expect(await catCoin.balanceOf(pair.address)).to.equal(300)
         })
-
+        
         it('should transfer funds from tokens donor')
+
+        it('should revert when fueling violates price', async () => {
+            await pair.fuel(200, 100)
+            await expect(pair.fuel(50, 200)).to.be.revertedWith("fueling should not change price")
+        })
 
         it('should emit a proper event', async () => {
             await expect(pair.fuel(200, 300))
