@@ -25,40 +25,46 @@ describe('Pair', () => {
         pair = await pairFactory.deploy(antAsset.address, catCoin.address)
     })
 
-    describe('constructor', () => {
-        it('sets asset pointers properly', async () => {
-            expect(await pair.xToken()).to.equal(antAsset.address)
-            expect(await pair.yToken()).to.equal(catCoin.address)
-        })
-    })      
+    it('constructor sets token pointers properly', async () => {
+        expect(await pair.xToken()).to.equal(antAsset.address)
+        expect(await pair.yToken()).to.equal(catCoin.address)
+    })
 
     describe('fuel', () => {
         beforeEach(async () => {
             await antAsset.approve(pair.address, 1000)
             await catCoin.approve(pair.address, 1000)
         })
-
-        it('should fuel contract with tokens', async () => {
+        
+        it('passes once', async () => {
             await pair.fuel(500, 500)
             expect(await antAsset.balanceOf(pair.address)).to.equal(500)
             expect(await catCoin.balanceOf(pair.address)).to.equal(500)
         })
 
-        it('should fuel contract with tokens when called multiple times', async () => {
+        it('passes twice', async () => {
             await pair.fuel(200, 100)
             await pair.fuel(400, 200)
             expect(await antAsset.balanceOf(pair.address)).to.equal(600)
             expect(await catCoin.balanceOf(pair.address)).to.equal(300)
         })
-        
-        it('should transfer funds from tokens donor')
 
-        it('should revert when fueling violates price', async () => {
+        it('transfers funds from donor')
+
+        it('reverts on 0 xTokens', async () => {
+            await expect(pair.fuel(0, 200)).to.be.revertedWith("input amount should not be 0")
+        })
+
+        it('reverts on 0 yTokens', async () => {
+            await expect(pair.fuel(1000, 0)).to.be.revertedWith("input amount should not be 0")
+        })
+
+        it('reverts when not preserving ratio', async () => {
             await pair.fuel(200, 100)
             await expect(pair.fuel(50, 200)).to.be.revertedWith("fueling should not change price")
         })
 
-        it('should emit a proper event', async () => {
+        it('emits proper event', async () => {
             await expect(pair.fuel(200, 300))
                 .to.emit(pair, 'Fuel').withArgs(200, 300)
         })
@@ -80,19 +86,23 @@ describe('Pair', () => {
             await pair.fuel(500, 500)
         })
         
-        it('properly moves sold asset', async () => {
+        it('transfers sold asset', async () => {
             await pair.connect(trader).swap(50)
             expect(await antAsset.balanceOf(traderAddress)).to.equal(50)
             expect(await antAsset.balanceOf(pair.address)).to.equal(550)
         })
         
-        it('properly moves bought asset', async () => {
+        it('transfers bought asset', async () => {
             await pair.connect(trader).swap(50)
             expect(await catCoin.balanceOf(traderAddress)).to.be.above(0)
             expect(await catCoin.balanceOf(pair.address)).to.be.below(500)
         })
 
-        it('should emit a proper event', async () => {
+        it('reverts on 0', async () => {
+            await expect(pair.connect(trader).swap(0)).to.be.revertedWith("input amount should not be 0")
+        })
+
+        it('emits proper event', async () => {
             await expect(pair.connect(trader).swap(50))
                 .to.emit(pair, 'Swap')
         })

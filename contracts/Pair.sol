@@ -18,11 +18,12 @@ contract Pair {
         yToken = _yToken;
     }
 
-    // X / Y = P
-    // (X + Δx) / (Y + Δy) = P
     // X / Y = (X + Δx) / (Y + Δy)
     // X * (Y + Δy) = (X + Δx) * Y
     function fuel(uint256 xInput, uint256 yInput) public {
+        require(xInput > 0, "input amount should not be 0");
+        require(yInput > 0, "input amount should not be 0");
+
         uint256 xReserve = xToken.balanceOf(address(this));
         uint256 yReserve = yToken.balanceOf(address(this));
         require(
@@ -41,6 +42,8 @@ contract Pair {
     // X * Y = (X + Δx) * (Y - Δy)
     // Δy = Y - (X * Y / (X + Δx))
     function swap(uint256 xInput) public {
+        require(xInput > 0, "input amount should not be 0");
+
         uint256 xReserve = xToken.balanceOf(address(this));
         uint256 yReserve = yToken.balanceOf(address(this));
         uint256 yOutput = yReserve.sub(
