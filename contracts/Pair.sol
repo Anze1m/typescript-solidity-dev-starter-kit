@@ -39,7 +39,7 @@ contract Pair {
     // X * Y = k
     // (X + Δx) * (Y - Δy) = k
     // X * Y = (X + Δx) * (Y - Δy)
-    // Δy = Y - (X*Y / (X + Δx))
+    // Δy = Y - (X * Y / (X + Δx))
     function swap(uint256 xInput) public {
         uint256 xReserve = xToken.balanceOf(address(this));
         uint256 yReserve = yToken.balanceOf(address(this));
