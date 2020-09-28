@@ -26,15 +26,12 @@ describe('Pair', () => {
     })
 
     describe('constructor', () => {
-        it('deploys properly', async () => {
-            expect(pair.address).to.be.properAddress
-        })
-
         it('sets asset pointers properly', async () => {
             expect(await pair.xToken()).to.equal(apeAsset.address)
             expect(await pair.yToken()).to.equal(catCoin.address)
         })
     })      
+
     describe('fuel', () => {
         beforeEach(async () => {
             await apeAsset.approve(pair.address, 1000)
@@ -55,11 +52,6 @@ describe('Pair', () => {
         })
 
         it('should transfer funds from tokens donor')
-
-        it('should fail if tries to fuel with more tokens than approved', async () => {
-            await expect(pair.fuel(1001, 1001))
-                .to.be.revertedWith('ERC20: transfer amount exceeds allowance')
-        })
 
         it('should emit a proper event', async () => {
             await expect(pair.fuel(200, 300))
