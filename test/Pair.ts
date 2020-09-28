@@ -52,16 +52,16 @@ describe('Pair', () => {
         it('transfers funds from donor')
 
         it('reverts on 0 xTokens', async () => {
-            await expect(pair.fuel(0, 200)).to.be.revertedWith("input amount should not be 0")
+            await expect(pair.fuel(0, 200)).to.be.revertedWith("input = 0")
         })
 
         it('reverts on 0 yTokens', async () => {
-            await expect(pair.fuel(1000, 0)).to.be.revertedWith("input amount should not be 0")
+            await expect(pair.fuel(1000, 0)).to.be.revertedWith("input = 0")
         })
 
         it('reverts when not preserving ratio', async () => {
             await pair.fuel(200, 100)
-            await expect(pair.fuel(50, 200)).to.be.revertedWith("fueling should not change price")
+            await expect(pair.fuel(50, 200)).to.be.revertedWith("price changed")
         })
 
         it('emits proper event', async () => {
@@ -99,7 +99,7 @@ describe('Pair', () => {
         })
 
         it('reverts on 0', async () => {
-            await expect(pair.connect(trader).swap(0)).to.be.revertedWith("input amount should not be 0")
+            await expect(pair.connect(trader).swap(0)).to.be.revertedWith("input = 0")
         })
 
         it('emits proper event', async () => {
